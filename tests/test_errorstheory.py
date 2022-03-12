@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from numan import errorstheory as e
 
@@ -32,16 +33,13 @@ def test_machine_number_set_smallest():
     assert mns.smallest() == 2.938735877055719e-39
 
 
-def test_machine_epsilon_chopping(): 
-    mns = e.MachineNumberSet(b=2, t=23, U=127, L=-127, approx=e.Approximations.CHOPPING)
-    eps = mns.machine_epsilon()
-    exp = 19e-8
-    print(eps - exp)
-    assert np.abs(eps - exp) < 1e-7
 
-
-def test_machine_epsilon_rounding(): 
-    mns = e.MachineNumberSet(b=2, t=23, U=127, L=-127, approx=e.Approximations.ROUNDING)
+@pytest.mark.parametrize('approximation', [
+    e.Approximations.CHOPPING, 
+    e.Approximations.ROUNDING
+])
+def test_machine_epsilon(approximation):
+    mns = e.MachineNumberSet(b=2, t=23, U=127, L=-127, approx=approximation)
     eps = mns.machine_epsilon()
     exp = 19e-8
     print(eps - exp)
