@@ -79,9 +79,9 @@ class MachineNumberSet:
         return (self.base ** self.upper) * (1 - self.base ** (-self.bits))
 
 
-    def machine_epsilon(self, approx=Approximations.ROUNDING):
+    def machine_epsilon(self):
         """ Returns the machine epsilon
         """
         assert self.approx in Approximations
-        f = self.epsilon_fmap[approx]
+        f = self.epsilon_fmap[self.approx]
         return f(self.base, self.bits)
