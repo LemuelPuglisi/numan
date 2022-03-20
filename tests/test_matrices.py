@@ -46,3 +46,61 @@ def test_random_hessemberg_matrix():
     for i in range(5): 
         for j in range(5):
             if j > i + 1 or i > j +1: assert A[i,j] == 0
+
+
+def test_is_positive_definite_matrix_with_positive_matrix():
+    Ap = np.array([
+        [ 2, -1,  0], 
+        [-1,  2, -1], 
+        [ 0, -1,  2]
+    ])
+    assert mtx.is_positive_definite_matrix(Ap)
+    
+
+def test_is_positive_definite_matrix_with_non_positive_matrix():
+    An = np.array([
+        [3, 5], 
+        [7, 1]
+    ])
+    assert not mtx.is_positive_definite_matrix(An)
+
+
+def test_random_positive_definite_matrix():
+    A = mtx.generate_random_positive_definite_matrix(4)
+    assert mtx.is_positive_definite_matrix(A)
+
+
+def test_is_positive_semidefinite_matrix_with_positive_matrix():
+    Ap = np.array([
+        [ 2, -1,  0], 
+        [-1,  2, -1], 
+        [ 0, -1,  2]
+    ])
+    assert mtx.is_positive_semidefinite_matrix(Ap)
+    
+
+def test_is_positive_semidefinite_matrix_with_non_positive_matrix():
+    An = np.array([
+        [3, 5], 
+        [7, 1]
+    ])
+    assert not mtx.is_positive_semidefinite_matrix(An)
+
+
+def test_random_positive_definite_matrix():
+    A = mtx.generate_random_positive_semidefinite_matrix(4)
+    assert mtx.is_positive_semidefinite_matrix(A)
+
+
+def test_random_strictly_diagonally_dominant_matrix():
+    A = mtx.generate_random_strictly_diagonally_dominant_matrix(4)
+    for i in range(4):
+        ds = sum( [ A[i, j] for j in range(4) if j != i ] )
+        assert A[i,i] > ds
+
+
+def test_random_weakly_diagonally_dominant_matrix():
+    A = mtx.generate_random_weakly_diagonally_dominant_matrix(4)
+    for i in range(4):
+        ds = sum( [ A[i, j] for j in range(4) if j != i ] )
+        assert A[i,i] >= ds

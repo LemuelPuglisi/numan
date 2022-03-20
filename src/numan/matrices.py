@@ -1,30 +1,6 @@
+from math import comb
 import numpy as np
-
-# from enum import Enum
-
-
-# class MatrixType(Enum):
-#     """ Enum containing matrix types. 
-#     """
-#     NORMAL              = 0
-#     SQUARE              = 1
-#     HERMITIAN           = 2
-#     SYMMETRIC           = 3
-#     IDENTITY            = 4
-#     DIAGONAL            = 5
-#     UPPER_TRIANGULAR    = 6
-#     LOWER_TRIANGULAR    = 7
-#     TRIDIAGONAL         = 8
-
-
-#     HESSEMBERG          = 9
-#     POSITIVE            = 10
-#     NEGATIVE            = 11
-#     POSITIVE_SEMI_DEFINITE = 12
-#     NEGATIVE_SEMI_DEFINITE = 13
-#     STRICT_DIAGONALLY_DOMINANT = 14
-#     WEAKLY_DIAGONALLY_DOMINANT = 15
-
+import itertools
 
 def _rme():
     """ Returns a random matrix element between 1 and 10.
@@ -122,3 +98,105 @@ def generate_random_hessemberg_matrix(n):
             if j <= i + 1 and i <= j + 1:
                 A[i,j] = _rme()
     return A
+
+
+def is_positive_definite_matrix(A: np.ndarray):
+    """ This method uses the Sylvester theorem to check 
+        if the matrix is positive definite. The Sylvester 
+        theorem says: 
+        matrix A is positive definite if and only if det(Ak)>0
+        for k = 1, ..., n. Where Ak is the matrix formed by the
+        first k row and k columns of A. 
+    """
+    assert len(A.shape) == 2 and A.shape[0] == A.shape[1]
+    r, _ = A.shape 
+    for i in range(r):
+        k = i + 1
+        Ak = A[:k, :k]
+        if np.linalg.det(Ak) <= 0: return False
+    return True
+
+
+def generate_random_positive_definite_matrix(n):
+    """ This method generates a (pseudo) random n x n positive matrix.
+        The following property states that: 
+        if A is symmetric, diagonally dominant and has a positive diagonal, 
+        then A is a positive definite matrix. 
+    """
+    A = generate_symmetric_matrix((n, n))
+    for i in range(n): A[i, i] = sum( [ A[i, j] for j in range(n) if j != i ] )
+    return A
+
+
+def get_matrix_principal_minors(A: np.ndarray):
+    """ This function extracts all the principal minors from the
+        matrix. A principal minor is a minor where the index of 
+        the deleted column corresponds with the index of the 
+        deleted row. 
+    """
+    assert len(A.shape) == 2 and A.shape[0] == A.shape[1]
+    n, _ = A.shape
+    principal_minors = []
+    for current_minors_size in range(1, n + 1):
+        rows_cols_to_delete = n - current_minors_size
+        combinations = itertools.combinations(range(n), rows_cols_to_delete)
+        combinations = [ list(combination) for combination in combinations ]
+        for combination in combinations:
+            combination.sort(reverse=True) # so the delete func doesn't mess indices 
+            B = np.copy(A)
+            for i in combination:
+                B = _remove_ith_col_row(B, i)
+            principal_minors.append(B)
+    return principal_minors
+
+
+def _remove_ith_col_row(A, i):
+    A = np.delete(A, i, 0)
+    A = np.delete(A, i, 1)
+    return A
+
+
+def is_positive_semidefinite_matrix(A: np.ndarray):
+    """ An Sylvester analogous theorem holds for characterizing 
+        positive semidefinite hermitian matrices, except that it 
+        is no longer sufficient to consider only the leading principal
+        minors: 
+        An Hermitian matrix M is positive-semidefinite if and only if
+        all principal minors of M are nonnegative. 
+    """
+    assert len(A.shape) == 2 and A.shape[0] == A.shape[1]
+    principal_minors = get_matrix_principal_minors(A)
+    return all( [ np.linalg.det(B) >= 0 for B in principal_minors ] )
+    
+
+def generate_random_positive_semidefinite_matrix(n):
+    """ This function generate a positive semidefinite matrix and uses
+        the following observation:
+        A^T * A is positive semidefinite. 
+        proof: let x be a non-zero column vector. Then we have: 
+        (1.)  x^T * A^T * A * x = 
+        (2.) = (x^T * A^T) * A * x = 
+        (3.) = (A * x)^T * A * x 
+        Notice that Ax is also a non-zero column vecotr, so (3.) is the 
+        square of the inner product of Ax. Then:
+        (A * x)^T * A * x = ||Ax||^2 >= 0. 
+    """
+    A = generate_random_matrix((n, n))
+    return np.matmul(A.transpose(), A)
+
+
+def generate_random_strictly_diagonally_dominant_matrix(n):
+    """ Generate a n x n strictly diagonally dominant random matrix
+    """
+    A = generate_random_matrix((n, n))
+    for i in range(n): A[i, i] = sum( [ A[i, j] for j in range(n) if j != i ] ) + 1
+    return A
+
+
+def generate_random_weakly_diagonally_dominant_matrix(n):
+    """ Generate a n x n weakly diagonally dominant random matrix
+    """
+    A = generate_random_matrix((n, n))
+    for i in range(n): A[i, i] = sum( [ A[i, j] for j in range(n) if j != i ] )
+    return A
+
