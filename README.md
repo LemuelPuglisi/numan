@@ -1,6 +1,8 @@
 # numan
 Numerical analysis python library 🔢
 
+![Tests](https://github.com/LemuelPuglisi/numan/actions/workflows/tests.yml/badge.svg)
+
 ## Package installation 
 
 Create a virtual environment (you need `virtualenv`): 
