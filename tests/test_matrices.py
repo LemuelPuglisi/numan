@@ -104,3 +104,28 @@ def test_random_weakly_diagonally_dominant_matrix():
     for i in range(4):
         ds = sum( [ A[i, j] for j in range(4) if j != i ] )
         assert A[i,i] >= ds
+
+
+def test_cofactor():
+    A = np.array([
+        [ 1, 3, -1], 
+        [ 2, 4,  0], 
+        [-1, 2,  2]
+    ])
+    assert round(mtx.cofactor(A, 0, 0)) == 8    
+    assert round(mtx.cofactor(A, 0, 1)) == -4
+
+
+def test_algebraic_complement():
+    A = np.array([
+        [ 1, 3, -1], 
+        [ 2, 4,  0], 
+        [-1, 2,  2]
+    ])
+    assert round(mtx.determinant(A)) == -12
+    assert round(mtx.determinant(A), 1) == round(mtx.determinant(A), 2)
+    assert round(mtx.determinant(A), 2) == round(mtx.determinant(A), 3)
+
+
+def test_matrix_inverse(): 
+    pass

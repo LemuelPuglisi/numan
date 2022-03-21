@@ -15,6 +15,13 @@ def matrix_shape(func):
     return inner
 
 
+def is_matrix(func):
+    def inner(A: np.ndarray):
+        assert len(A.shape) == 2
+        return func(A)
+    return inner
+
+
 @matrix_shape
 def generate_random_matrix(shape: tuple):
     """ Generate a random matrix. 
@@ -200,3 +207,29 @@ def generate_random_weakly_diagonally_dominant_matrix(n):
     for i in range(n): A[i, i] = sum( [ A[i, j] for j in range(n) if j != i ] )
     return A
 
+
+def cofactor(A: np.ndarray, row: int, col: int):
+    """ Compute the (row,col) matrix element cofactor. 
+    """
+    Arc = np.delete(A,   row, 0)
+    Arc = np.delete(Arc, col, 1)
+    s = 1 if (row + col) % 2 == 0 else -1
+    return s * np.linalg.det(Arc)
+
+
+def determinant(A: np.ndarray, row=1):
+    """ Compute the matrix determinant using the Laplace theorem. 
+        The theorem states that: 
+        the determinant of the matrix A is equivalent to the sum of all  
+        the cofactors in a generic row.  
+    """
+    assert A.shape[0] == A.shape[1]
+    return sum ( cofactor(A, row, j) for j in range(A.shape[1]) )
+
+
+def inverse(A: np.ndarray):
+    """ Compute the inverse matrix. 
+    """
+    assert A.shape[0] == A.shape[1]
+    # return np.linalg.inv(A)
+    pass 
