@@ -217,19 +217,34 @@ def cofactor(A: np.ndarray, row: int, col: int):
     return s * np.linalg.det(Arc)
 
 
+@is_matrix
+def cofactor_matrix(A: np.ndarray):
+    """ Compute the cofactor matrix """
+    n, m = A.shape
+    C = np.zeros((n, m))
+    for i in range(n):
+        for j in range(m):
+            C[i, j] = cofactor(A, i, j)
+    return C
+
+
 def determinant(A: np.ndarray, row=1):
     """ Compute the matrix determinant using the Laplace theorem. 
         The theorem states that: 
-        the determinant of the matrix A is equivalent to the sum of all  
-        the cofactors in a generic row.  
+        Given the arbitrary i-th row, the determinant is equivalent 
+        to the sum of the products of the A(ij) element, times the 
+        A(ij) cofactor. 
     """
     assert A.shape[0] == A.shape[1]
-    return sum ( cofactor(A, row, j) for j in range(A.shape[1]) )
+    return sum ( A[row, j] * cofactor(A, row, j) for j in range(A.shape[1]) )
 
 
 def inverse(A: np.ndarray):
     """ Compute the inverse matrix. 
+        Given the transposed cofactor matrix C, since 
+        AC = CA = det(A) x I => (C/det(A))A = I 
+        hence A^-1 = C / det(A) is the inverse matrix of A.
     """
     assert A.shape[0] == A.shape[1]
-    # return np.linalg.inv(A)
-    pass 
+    return cofactor_matrix(A).transpose() / determinant(A)
+    

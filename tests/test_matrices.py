@@ -116,6 +116,16 @@ def test_cofactor():
     assert round(mtx.cofactor(A, 0, 1)) == -4
 
 
+def test_cofactor_matrix(): 
+    A = np.array([
+        [1, 2], 
+        [3, 4]        
+    ])
+    C = mtx.cofactor_matrix(A)
+    DI = np.round(np.matmul(A, C.transpose()))
+    assert DI[0, 0] == -2 and DI[1, 0] == 0 and DI[1, 0] == 0 and DI[1, 1] == -2  
+
+
 def test_algebraic_complement():
     A = np.array([
         [ 1, 3, -1], 
@@ -127,5 +137,28 @@ def test_algebraic_complement():
     assert round(mtx.determinant(A), 2) == round(mtx.determinant(A), 3)
 
 
+def test_determinant():
+    A1 = np.array([
+        [ 1, 3, -1], 
+        [ 2, 4,  0], 
+        [-1, 2,  2]
+    ])
+    A2 = np.array([
+        [1, 2], 
+        [3, 4]        
+    ])
+    assert round(np.linalg.det(A1)) == round(mtx.determinant(A1))
+    assert round(np.linalg.det(A2)) == round(mtx.determinant(A2))
+
+
 def test_matrix_inverse(): 
-    pass
+    A = np.array([
+        [1, 2], 
+        [3, 4]        
+    ])
+    exp_Ai = np.array([
+        [-2, 1], 
+        [1.5, 0.5]
+    ])
+    obt_Ai = mtx.inverse(A)
+    assert np.array_equal(np.round(exp_Ai), np.round(obt_Ai))
