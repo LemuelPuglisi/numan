@@ -162,3 +162,16 @@ def test_matrix_inverse():
     ])
     obt_Ai = mtx.inverse(A)
     assert np.array_equal(np.round(exp_Ai), np.round(obt_Ai))
+
+
+def test_binet_theorem():
+    A = np.array([
+        [ 1, 3], 
+        [-2, 1]
+    ])
+    B = np.array([
+        [ 3, 2], 
+        [ 1, 0]
+    ])
+    det_AB = mtx.determinant(np.matmul(A, B))
+    assert mtx.binet_theorem(A, B, det_AB)

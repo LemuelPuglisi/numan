@@ -246,5 +246,18 @@ def inverse(A: np.ndarray):
         hence A^-1 = C / det(A) is the inverse matrix of A.
     """
     assert A.shape[0] == A.shape[1]
+    # we are using cofactor without swapping (i,j) indices
+    # so we need to transpose the matrix. The swap produces
+    # directly the transpose. 
     return cofactor_matrix(A).transpose() / determinant(A)
     
+
+def binet_theorem(A: np.ndarray, B: np.ndarray, det: float):
+    """ From the Binet theorem, we know that: 
+        det(AB) = det(A) x det(B)
+        So this function returns True if the determinant det
+        is equal to det(A) x det(B)
+    """
+    assert len(A.shape) == 2 and len(B.shape) == 2
+    det_ab = determinant(A) * determinant(B)
+    return round(det, 8) == round(det_ab, 8)
