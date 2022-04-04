@@ -26,3 +26,15 @@ def test_backward_substitution():
     )
     x = ls._backward_substitution(A, b)
     assert np.array_equal(x, np.array([-4/3, 0, 2]))
+
+
+def test_gem():
+    A = np.array([
+        [1,  2, 3], 
+        [2,  1, 4], 
+        [3, -3, 1]
+    ])
+    b = np.array([ 1., 2., 1. ])
+    x = ls.gem(A, b)
+    ob = A.dot(x)
+    assert np.allclose(b, ob)
