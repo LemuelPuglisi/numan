@@ -228,7 +228,7 @@ def cofactor_matrix(A: np.ndarray):
     return C
 
 
-def determinant(A: np.ndarray, row=1):
+def determinant(A: np.ndarray, row=0):
     """ Compute the matrix determinant using the Laplace theorem. 
         The theorem states that: 
         Given the arbitrary i-th row, the determinant is equivalent 
