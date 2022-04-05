@@ -56,14 +56,14 @@ def generate_random_diagonal_matrix(n):
     return A
 
 
-def generate_random_upper_triangular_matrix(n):
-    """ Generate a n x n random upper triangular matrix 
-    """
-    A = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i, n):
-            A[i,j] = _rme()
-    return A
+@is_matrix
+def is_upper_triangular_matrix(A: np.ndarray):
+    """ Return True if the matrix is upper triangular """
+    n, _ = A.shape
+    for i in range(1, n):
+        for j in range(0, i):
+            if A[i, j] != 0: return False
+    return True
 
 
 def generate_random_upper_triangular_matrix(n):
@@ -74,6 +74,17 @@ def generate_random_upper_triangular_matrix(n):
         for j in range(i, n):
             A[i,j] = _rme()
     return A
+
+
+@is_matrix
+def is_lower_triangular_matrix(A: np.ndarray):
+    """ Return True if the matrix is lower triangular """
+    n, _ = A.shape
+    for i in range(0, n):
+        for j in range(i+1, n):
+            print((i, j))
+            if A[i, j] != 0: return False
+    return True
 
 
 def generate_random_lower_triangular_matrix(n):
@@ -261,3 +272,50 @@ def binet_theorem(A: np.ndarray, B: np.ndarray, det: float):
     assert len(A.shape) == 2 and len(B.shape) == 2
     det_ab = determinant(A) * determinant(B)
     return round(det, 8) == round(det_ab, 8)
+
+
+def create_permutation_matrix(i: int, j: int, n: int): 
+    """ Create a n x n permutation matrix P. 
+        Pre-multipling  P x A will swap rows i and j.
+        Post-multipling A x P will swap cols i and j.  
+    """
+    assert i >= 0 and i < n and j >= 0 and j < n
+    P = generate_identity_matrix(n)
+    P[i, i] = P[j, j] = 0
+    P[i, j] = P[j, i] = 1
+    return P
+
+@is_matrix
+def LU(A: np.ndarray):
+    """ This function calculate the LU factorization of
+        the matrix A, moreover: A = L x U. A third value 
+        P is returned along with L and U: that's the permutation
+        matrix in order to reproduce the partial pivot operations. 
+        (You may want to apply those steps to a coefficient vector b
+        while solving a linear system, see function gem @ linearsystem.py)
+    """
+    assert determinant(A) != 0
+    n, _ = A.shape
+    Lt = P = generate_identity_matrix(n)    
+    U = A.copy()
+    for i in range(n-1):
+        Li = generate_identity_matrix(n)
+        for j in range(i+1, n): 
+            Li[j, i]  = - U[j, i] / U[i, i]              
+        U = np.matmul(Li, U)    
+        Lt = np.matmul(Li, Lt)
+    L = inverse(Lt)
+    # P is just an identity matrix (for now)
+    return L, U, P
+
+
+# def partial_pivot(A: np.ndarray, c: int):
+#     """ Search the greater element in the specified column (c) 
+#         and swap the row containing that element with the row c. 
+#         We should map this permutation even in the coefficient 
+#         vector b. 
+#     """
+#     idx = c + np.argmax(np.abs(A[c:, c]))
+#     P = create_permutation_matrix(c, idx, A.shape[0])
+#     Ap = np.matmul(P, A)
+#     return Ap, P

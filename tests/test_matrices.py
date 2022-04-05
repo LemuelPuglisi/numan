@@ -34,6 +34,36 @@ def test_random_lower_triangular_matrix():
     assert A[0, 1] == 0 and A[0, 2] == 0 and A[1, 2] == 0 
 
 
+def test_is_upper_triangular_matrix():
+    A = np.array([
+        [1, 1, 1], 
+        [0, 1, 1], 
+        [0, 0, 1]
+    ])
+    B = np.array([
+        [1, 1, 1], 
+        [0, 1, 1], 
+        [2, 0, 1]
+    ])
+    assert mtx.is_upper_triangular_matrix(A)
+    assert not mtx.is_upper_triangular_matrix(B)
+
+
+def test_is_lower_triangular_matrix():
+    A = np.array([
+        [1, 0, 0],
+        [1, 1, 0], 
+        [1, 1, 1]
+    ])
+    B = np.array([
+        [1, 1, 1], 
+        [0, 1, 1], 
+        [2, 0, 1]
+    ])
+    assert mtx.is_lower_triangular_matrix(A)
+    assert not mtx.is_lower_triangular_matrix(B)
+
+
 def test_random_tridiagonal_matrix():
     A = mtx.generate_random_tridiagonal_matrix(5)
     for i in range(5): 
@@ -161,7 +191,7 @@ def test_matrix_inverse():
         [1.5, 0.5]
     ])
     obt_Ai = mtx.inverse(A)
-    assert np.array_equal(np.round(exp_Ai), np.round(obt_Ai))
+    np.allclose(exp_Ai, obt_Ai)
 
 
 def test_binet_theorem():
@@ -175,3 +205,13 @@ def test_binet_theorem():
     ])
     det_AB = mtx.determinant(np.matmul(A, B))
     assert mtx.binet_theorem(A, B, det_AB)
+
+
+def test_permutation_matrix(): 
+    eP = np.array([
+        [0, 0, 1],
+        [0, 1, 0],
+        [1, 0, 0]
+    ])
+    oP = mtx.create_permutation_matrix(0, 2, 3)
+    assert np.array_equal(eP, oP)    

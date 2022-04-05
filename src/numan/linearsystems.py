@@ -44,31 +44,40 @@ def _backward_substitution(A: np.ndarray, b: np.ndarray):
 
 
 def gem(A: np.ndarray, b: np.ndarray):
-    """ Gaussian elimination method.  
+    """ Perform the Gaussian elimination method.  
     """
     assert len(A.shape) == 2 and len(b.shape) == 1
     assert A.shape[0] == A.shape[1] and A.shape[0] == b.shape[0]    
     assert mx.determinant(A) != 0
-    n, _ = A.shape
-    # We will iteratively build the L~ matrix 
-    # multipling L_i x Lt at each i-th iteration 
-    Lt = mx.generate_identity_matrix(n)    
-    # The U matrix is equivalent to the A matrix at 
-    # step n-1 of the gaussian elimination method, since
-    # A^(n-1) = L_{n-1} x L_{n-2} x ... x L_2 x L_1 x A. 
-    U = A.copy()
-    for i in range(n-1): 
-        Li = mx.generate_identity_matrix(n)
-        for j in range(i+1, n): 
-            Li[j, i]  = - U[j, i] / U[i, i]     # Computing the multipliers.         
-        U = np.matmul(Li, U)                    # Updating the A matrix (will define U)
-        Lt = np.matmul(Li, Lt)                  # Updating the L~ matrix
-    L = np.linalg.inv(Lt)               # TODO: ask if _L inverse matrix is computed
-                                        # in a particular way, since we're using numpy. 
-    y =  _forward_substitution(L, b)    # Computing Ly=b
-    x = _backward_substitution(U, y)    # Computing Ux=y
+    # assert can_apply_gem(A)
+    L, U, P = mx.LU(A)
+    # b = np.matmul(P, b)
+    y =  _forward_substitution(L, b)
+    x = _backward_substitution(U, y)
     return x
+
+
+def can_apply_gem(A: np.ndarray):
+    """ If all the principal minors of the matrix
+        have a non-zero determinant, all the diagonals
+        elements will be non-zero during the Gaussian 
+        elimination method. 
+    """
+    pms = mx.get_matrix_principal_minors(A)
+    for pm in pms: 
+        if mx.determinant(pm) == 0: 
+            return False
+    return True
 
 
 if __name__ == '__main__': 
     pass
+    # A = np.array([
+    #     [ 1, -1,  1], 
+    #     [-6,  1, -1],
+    #     [ 3,  1,  1]
+    # ])
+    # b = np.array([ 2, 3, 4 ])
+    # x = gem(A, b)
+    # print("Actual: ", x)
+    # print("Expected: ", [ -1, 2, 5 ])
