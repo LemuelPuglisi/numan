@@ -70,8 +70,20 @@ def can_apply_gem(A: np.ndarray):
     return True
 
 
+def cholensky_solve(A: np.ndarray, b: np.ndarray):
+    """ This function takes a positive-defined symmetric 
+        matrix and a coefficient vector and solves the linear
+        system using the Cholesky decomposition. 
+    """
+    assert len(b.shape) == 1
+    assert mx.determinant(A) != 0
+    L = mx.cholesky_decomposition(A)
+    y =  _forward_substitution(L, b)
+    x = _backward_substitution(L.T, y)
+    return x
+
+
 if __name__ == '__main__': 
-    pass
     # A = np.array([
     #     [ 1, -1,  1], 
     #     [-6,  1, -1],
@@ -81,3 +93,5 @@ if __name__ == '__main__':
     # x = gem(A, b)
     # print("Actual: ", x)
     # print("Expected: ", [ -1, 2, 5 ])
+
+

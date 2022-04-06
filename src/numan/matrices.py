@@ -30,17 +30,24 @@ def generate_random_matrix(shape: tuple):
     return np.random.randint(10, size=(r, c))
 
 
-@matrix_shape
-def generate_symmetric_matrix(shape: tuple):
+def generate_symmetric_matrix(n):
     """ Generate a random symmetric matrix.
     """
-    r, c = shape
-    A = np.ndarray(shape)
-    for i in range(r):
-        for j in range(i, c):
+    A = np.ndarray((n, n))
+    for i in range(n):
+        for j in range(i, n):
             A[i, j] = A[j, i] = _rme()
     return A
     
+
+@is_matrix
+def is_symmetric(A: np.ndarray):
+    assert A.shape[0] == A.shape[1]
+    for i in range(A.shape[0]):
+        for j in range(i + 1, A.shape[1]):
+            if A[i, j] != A[j, i]: return False
+    return True 
+
 
 def generate_identity_matrix(n):
     """ Generate a n x n identity matrix 
@@ -118,7 +125,7 @@ def generate_random_hessemberg_matrix(n):
     return A
 
 
-def is_positive_definite_matrix(A: np.ndarray):
+def is_positive_definite(A: np.ndarray):
     """ This method uses the Sylvester theorem to check 
         if the matrix is positive definite. The Sylvester 
         theorem says: 
@@ -319,3 +326,20 @@ def LU(A: np.ndarray):
 #     P = create_permutation_matrix(c, idx, A.shape[0])
 #     Ap = np.matmul(P, A)
 #     return Ap, P
+
+
+@is_matrix
+def cholesky_decomposition(A: np.ndarray):
+    """ This function takes a positive-definite symmetric matrix
+        as input and returns the Cholesky decomposition matrix. 
+    """
+    assert is_symmetric(A)
+    assert is_positive_definite(A)
+    n, _ = A.shape
+    L = np.zeros((n, n))
+    L[0, 0] = np.sqrt(A[0, 0])
+    for c in range(n):
+        for r in range(c, n):
+            L[r, c] = A[r, c] - sum([ L[r, k] * L[c, k] for k in range(c)])
+            L[r, c] = np.sqrt(L[r, c]) if r == c else L[r, c] / L[c, c] 
+    return L

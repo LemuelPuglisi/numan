@@ -38,3 +38,15 @@ def test_gem():
     x = ls.gem(A, b)
     ob = A.dot(x)
     assert np.allclose(b, ob)
+
+
+def test_cholesky_solve():
+    A = np.array([
+        [   4,  12, -16],
+        [  12,  37, -43],
+        [ -16, -43,  98]
+    ])
+    b = np.array([ 2, 12, 30 ])
+    xo = ls.cholensky_solve(A, b)
+    xe = np.array([ -11/18, 14/9, 8/9 ])
+    assert np.allclose(xo, xe)

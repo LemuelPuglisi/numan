@@ -9,8 +9,13 @@ def test_random_normal_matrix():
 
 
 def test_random_symmetric_matrix():
-    A = mtx.generate_symmetric_matrix((3, 3))
+    A = mtx.generate_symmetric_matrix(3)
     assert np.array_equal(A, A.transpose()) 
+
+
+def test_is_symmetric():
+    A = mtx.generate_symmetric_matrix(10)
+    assert mtx.is_symmetric(A)
 
 
 def test_identity_matrix():
@@ -84,7 +89,7 @@ def test_is_positive_definite_matrix_with_positive_matrix():
         [-1,  2, -1], 
         [ 0, -1,  2]
     ])
-    assert mtx.is_positive_definite_matrix(Ap)
+    assert mtx.is_positive_definite(Ap)
     
 
 def test_is_positive_definite_matrix_with_non_positive_matrix():
@@ -92,12 +97,12 @@ def test_is_positive_definite_matrix_with_non_positive_matrix():
         [3, 5], 
         [7, 1]
     ])
-    assert not mtx.is_positive_definite_matrix(An)
+    assert not mtx.is_positive_definite(An)
 
 
 def test_random_positive_definite_matrix():
     A = mtx.generate_random_positive_definite_matrix(4)
-    assert mtx.is_positive_definite_matrix(A)
+    assert mtx.is_positive_definite(A)
 
 
 def test_is_positive_semidefinite_matrix_with_positive_matrix():
