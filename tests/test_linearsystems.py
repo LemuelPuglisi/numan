@@ -1,6 +1,7 @@
 import numpy as np
 
 from numan import linearsystems as ls 
+from numan import matrices as mx
 
 def test_forward_substitution():
     A = np.array([
@@ -30,7 +31,7 @@ def test_backward_substitution():
     assert np.array_equal(x, np.array([-4/3, 0, 2]))
 
 
-def test_gem():
+def test_gem_solve():
     A = np.array([
         [1,  2, 3], 
         [2,  1, 4], 
@@ -38,7 +39,7 @@ def test_gem():
     ])
     b = np.array([ 1., 2., 1. ])
     S = ls.LinearSystem(A, b)
-    x = ls.gem(S)
+    x = ls.gem_solve(S)
     ob = A.dot(x)
     assert np.allclose(b, ob)
 
@@ -67,3 +68,36 @@ def test_thomas_solve():
     xo = ls.thomas_solve(S)
     xe = np.array([ 1.5, 0, 0.5 ])
     assert np.allclose(xo, xe)
+
+
+def test_jacobi_solve():
+    # the convergence of the method is ensured by diagonally
+    # dominant linear systems.
+    A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
+    b = np.random.rand(5)
+    S = ls.LinearSystem(A, b)
+    xo = ls.jacobi_solve(S, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S)
+    assert np.allclose(xo, xe, atol=1e-05)
+
+
+def test_gauss_seidel_solve():
+    # the convergence of the method is ensured by diagonally
+    # dominant linear systems.
+    A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
+    b = np.random.rand(5)
+    S = ls.LinearSystem(A, b)
+    xo = ls.gauss_seidel_solve(S, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S)
+    assert np.allclose(xo, xe, atol=1e-05)
+
+
+def test_sor_solve():
+    # the convergence of the method is ensured by diagonally
+    # dominant linear systems.
+    A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
+    b = np.random.rand(5)
+    S = ls.LinearSystem(A, b)
+    xo = ls.sor_solve(S, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S)
+    assert np.allclose(xo, xe, atol=1e-05)

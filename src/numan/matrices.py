@@ -229,6 +229,18 @@ def generate_random_strictly_diagonally_dominant_matrix(n):
     return A
 
 
+@is_matrix
+def is_strictly_diagonally_dominant(A: np.ndarray):
+    """ Returns True if the matrix is strictly diagonally dominant """
+    assert A.shape[0] == A.shape[1], "Square matrix required."
+    n = A.shape[0]
+    for i in range(n): 
+        aii = A[i, i]  
+        row = sum( [ A[i, j] for j in range(n) if j != i ] )
+        if aii <= row: return False
+    return True
+
+
 def generate_random_weakly_diagonally_dominant_matrix(n):
     """ Generate a n x n weakly diagonally dominant random matrix
     """

@@ -156,6 +156,13 @@ def test_random_strictly_diagonally_dominant_matrix():
         assert A[i,i] > ds
 
 
+def test_is_strictly_diagonally_dominant():
+    A = mtx.generate_random_strictly_diagonally_dominant_matrix(3)
+    B = np.ones((3, 3))
+    assert mtx.is_strictly_diagonally_dominant(A)
+    assert not mtx.is_strictly_diagonally_dominant(B)
+
+
 def test_random_weakly_diagonally_dominant_matrix():
     A = mtx.generate_random_weakly_diagonally_dominant_matrix(4)
     for i in range(4):
