@@ -76,6 +76,28 @@ def test_random_tridiagonal_matrix():
             if j not in [i-1, i, i+1]: assert A[i,j] == 0
 
 
+def test_is_tridiagonal():
+    At = np.array([
+        [1, 1, 0, 0], 
+        [1, 1, 1, 0], 
+        [0, 1, 1, 1], 
+        [0, 0, 1, 1]
+    ])
+    Ant = np.array([
+        [1, 1, 0, 3], 
+        [1, 1, 1, 0], 
+        [0, 1, 1, 1], 
+        [3, 0, 1, 1]
+    ])
+    B = np.array([
+        [2, 2], 
+        [3, 3]
+    ])
+    assert mtx.is_tridiagonal(At)
+    assert not mtx.is_tridiagonal(Ant)
+    assert mtx.is_tridiagonal(B)
+
+
 def test_random_hessemberg_matrix():
     A = mtx.generate_random_hessemberg_matrix(5)
     for i in range(5): 

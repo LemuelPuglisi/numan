@@ -1,4 +1,3 @@
-from math import comb
 import numpy as np
 import itertools
 
@@ -111,6 +110,18 @@ def generate_random_tridiagonal_matrix(n):
         if (i + 1 < n):  A[i, i + 1] = _rme()
     return A
 
+
+@is_matrix
+def is_tridiagonal(A: np.ndarray):
+    """ Returns True if A is a tridiagonal matrix """
+    n, m = A.shape
+    if n < 3 or m < 3: return True
+    for i in range(n):
+        for j in range(m):
+            if i == j or i == j - 1 or i == j + 1: continue
+            if A[i, j] != 0: return False
+    return True 
+            
 
 def generate_random_hessemberg_matrix(n):
     """ Generate a n x n random Hessemberg matrix. 
