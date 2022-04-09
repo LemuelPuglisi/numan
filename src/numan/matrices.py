@@ -159,7 +159,7 @@ def generate_random_positive_definite_matrix(n):
         if A is symmetric, diagonally dominant and has a positive diagonal, 
         then A is a positive definite matrix. 
     """
-    A = generate_symmetric_matrix((n, n))
+    A = generate_symmetric_matrix(n)
     for i in range(n): A[i, i] = sum( [ A[i, j] for j in range(n) if j != i ] )
     return A
 

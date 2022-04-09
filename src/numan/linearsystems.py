@@ -13,6 +13,10 @@ class LinearSystem:
         assert len(A.shape) == 2, "A must be a matrix."
         assert len(b.shape) == 1, "b must be a vector."
         assert A.shape[0] == b.shape[0], "A rows and b must have the same size"
+        print("#"*50)
+        print(A)
+        print(b)
+        print("#"*50)
         self.A = A.astype(np.double)
         self.b = b.astype(np.double)
         self.equations = A.shape[0]
@@ -147,9 +151,8 @@ def jacobi_solve(S: LinearSystem, max_iter=100, eps=1e-8):
         iterative method. 
     """
     if not mx.is_strictly_diagonally_dominant(S.A):
-        warning(("Matrix not strictly diagonally dominant, ", 
+        warning(("Matrix not strictly diagonally dominant, "
                     "method may not converge."))
-            
     x = np.random.rand(S.variables)
     # The termination criterion is based on measuring the relative change between
     # the previous and the current solution vector x.
@@ -164,20 +167,24 @@ def jacobi_solve(S: LinearSystem, max_iter=100, eps=1e-8):
     return x
 
 
+def change_ratio(xa, xb):
+    """ ratio of change between two vectors """ 
+    return np.linalg.norm(xa - xb) / np.linalg.norm(xa)
+
+
+
 def gauss_seidel_solve(S: LinearSystem, max_iter=100, eps=1e-8):
     """ Solves the system of linear equations using the Gauss-Seidel 
         iterative method. 
     """
     if not mx.is_strictly_diagonally_dominant(S.A) \
-        or (mx.is_symmetric(S.A) and mx.is_positive_definite(S.A)):
-        warning(("Matrix not strictly diagonally dominant, ",
-                    "nor symmetric diagonally positive definite," 
+        and not (mx.is_symmetric(S.A) and mx.is_positive_definite(S.A)):
+        warning(("Matrix not strictly diagonally dominant, "
+                    "nor symmetric diagonally positive definite, " 
                     "method may not converge."))
-
     x = np.random.rand(S.variables)
     # The termination criterion is based on measuring the relative change between
     # the previous and the current solution vector x.
-    change_ratio = lambda xa, xb: np.linalg.norm(xa - xb) / np.linalg.norm(xa)
     for _ in range(max_iter):
         prev_x = x.copy()
         for i in range(S.variables):
@@ -192,10 +199,15 @@ def sor_solve(S: LinearSystem, max_iter=100, eps=1e-8, omega=.9):
     """ Solves the system of linear equations using the SOR  
         (Successive Over-Relaxation) iterative method. 
     """
+    assert omega > 0 and omega < 2, "omega should be in ]0, 2[ to avoid method divergence."
+    if not mx.is_strictly_diagonally_dominant(S.A) \
+        and not (mx.is_symmetric(S.A) and mx.is_positive_definite(S.A)):
+        warning(("Matrix not strictly diagonally dominant, "
+                    "nor symmetric diagonally positive definite, " 
+                    "method may not converge."))
     x = np.random.rand(S.variables)
     # The termination criterion is based on measuring the relative change between
     # the previous and the current solution vector x.
-    change_ratio = lambda xa, xb: np.linalg.norm(xa - xb) / np.linalg.norm(xa)
     for _ in range(max_iter):
         prev_x = x.copy()
         for i in range(S.variables):
@@ -209,24 +221,63 @@ def sor_solve(S: LinearSystem, max_iter=100, eps=1e-8, omega=.9):
     return x
 
 
+def gradient_solve(S: LinearSystem, max_iter=100, eps=1e-8):
+    """ Solve the system of linear equation reducing it
+        to an optimization problem, where it finds the minimum 
+        of the quadratic form of the system. 
+    """
+    if not mx.is_positive_definite(S.A):
+        warning(("Matrix not definite positive, method may not converge."))
+    # Empirically, method works even with non-symmetric matrices. 
+    # if not mx.is_symmetric(S.A):
+    #     S = LinearSystem(np.matmul(S.A.T, S.A), S.b)        # analogous problem when A is not symmetric 
+
+    A, b = S.A, S.b
+    x = np.random.rand(S.variables)
+
+    for k in range(max_iter):
+        prev_x = x.copy()
+        dk = np.matmul(A, x) - b                            # calculating the gradient. 
+        rk = - dk                                           # direction and rate of fastest decrease
+        denominator = np.matmul(rk.T, A).dot(rk)            # denominator to calculate alpha
+        if denominator == 0: 
+            warning('Avoiding zero division, stopping the method.')
+            break
+        ak = (rk.T.dot(rk)) / denominator                   # alpha = length of the step
+        x = x + ak * rk                                     # calculating the new solution 
+        if change_ratio(prev_x, x) < eps:
+            break
+    return x
+
+
+# def conjugate_gradient_solve(S: LinearSystem):
+#     """
+#     """ https://it.wikipedia.org/wiki/Metodo_del_gradiente_coniugato
+#     A, b = S.A, S.b
+#     x_prev = np.random.rand(S.variables)
+#     r_prev = b - np.matmul(A, x_prev)
+#     p_prev = r_prev
+#     for _ in range(100): 
+#         alpha = p_prev.T.dot(r_prev) / np.matmul(p_prev.T, A).dot(p_prev)
+#         # r = b - np.matmul(A, x)
+
 
 
 if __name__ == '__main__':
+    pass
 
-    A = np.array([
-        [9,  1,  3],
-        [3,  9,  1],
-        [11,  88, 15]
-    ])
+    # A = np.array([
+    #     [30,  8,  9], 
+    #     [7,  30,  3],
+    #     [20, 15, 30] 
+    # ])
 
-    b = np.array([5, 4, 2])
+    # b = np.array([5, 4, 5])
 
-    S = LinearSystem(A, b)
-
-    print(mx.determinant(A))
-    xe = gem_solve(S)
-    # xo = gauss_seidel_solve(S)
-    xo = sor_solve(S)
-
-    print("expected", xe)
-    print("obtained", xo)
+    # S1 = LinearSystem(A, b)
+    # S2 = LinearSystem(A, b)
+    
+    # xe = gem_solve(S2)
+    # xo = gradient_solve(S1, max_iter=10000)
+    # print(xo)
+    # print(xe)

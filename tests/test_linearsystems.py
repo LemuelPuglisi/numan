@@ -75,9 +75,10 @@ def test_jacobi_solve():
     # dominant linear systems.
     A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
     b = np.random.rand(5)
-    S = ls.LinearSystem(A, b)
-    xo = ls.jacobi_solve(S, max_iter=1000, eps=1e-7)
-    xe = ls.gem_solve(S)
+    S1 = ls.LinearSystem(A, b) # we build two because gem will modify the system
+    S2 = ls.LinearSystem(A, b)
+    xo = ls.jacobi_solve(S1, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S2)
     assert np.allclose(xo, xe, atol=1e-05)
 
 
@@ -86,9 +87,10 @@ def test_gauss_seidel_solve():
     # dominant linear systems.
     A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
     b = np.random.rand(5)
-    S = ls.LinearSystem(A, b)
-    xo = ls.gauss_seidel_solve(S, max_iter=1000, eps=1e-7)
-    xe = ls.gem_solve(S)
+    S1 = ls.LinearSystem(A, b) # we build two because gem will modify the system
+    S2 = ls.LinearSystem(A, b)
+    xo = ls.gauss_seidel_solve(S1, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S2)
     assert np.allclose(xo, xe, atol=1e-05)
 
 
@@ -97,7 +99,20 @@ def test_sor_solve():
     # dominant linear systems.
     A = mx.generate_random_strictly_diagonally_dominant_matrix(5)
     b = np.random.rand(5)
-    S = ls.LinearSystem(A, b)
-    xo = ls.sor_solve(S, max_iter=1000, eps=1e-7)
-    xe = ls.gem_solve(S)
+    S1 = ls.LinearSystem(A, b) # we build two because gem will modify the system
+    S2 = ls.LinearSystem(A, b)
+    xo = ls.sor_solve(S1, max_iter=1000, eps=1e-7)
+    xe = ls.gem_solve(S2)
+    assert np.allclose(xo, xe, atol=1e-05)
+
+
+def test_gradient_solve():
+    # the convergence of the method is ensured by diagonally
+    # dominant linear systems.
+    A = mx.generate_random_positive_definite_matrix(3)
+    b = np.random.rand(3)
+    S1 = ls.LinearSystem(A, b) # we build two because gem will modify the system
+    S2 = ls.LinearSystem(A, b)
+    xo = ls.gradient_solve(S1, max_iter=1000)
+    xe = ls.gem_solve(S2)
     assert np.allclose(xo, xe, atol=1e-05)
