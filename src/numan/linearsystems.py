@@ -1,8 +1,6 @@
 from logging import warning
 import numpy as np
-import timeit
 
-from scipy.linalg import hilbert
 from numan import matrices as mx
 
 
@@ -13,10 +11,6 @@ class LinearSystem:
         assert len(A.shape) == 2, "A must be a matrix."
         assert len(b.shape) == 1, "b must be a vector."
         assert A.shape[0] == b.shape[0], "A rows and b must have the same size"
-        print("#"*50)
-        print(A)
-        print(b)
-        print("#"*50)
         self.A = A.astype(np.double)
         self.b = b.astype(np.double)
         self.equations = A.shape[0]
@@ -250,17 +244,38 @@ def gradient_solve(S: LinearSystem, max_iter=100, eps=1e-8):
     return x
 
 
-# def conjugate_gradient_solve(S: LinearSystem):
-#     """
-#     """ https://it.wikipedia.org/wiki/Metodo_del_gradiente_coniugato
-#     A, b = S.A, S.b
-#     x_prev = np.random.rand(S.variables)
-#     r_prev = b - np.matmul(A, x_prev)
-#     p_prev = r_prev
-#     for _ in range(100): 
-#         alpha = p_prev.T.dot(r_prev) / np.matmul(p_prev.T, A).dot(p_prev)
-#         # r = b - np.matmul(A, x)
-
+def conjugate_gradient_solve(S: LinearSystem, max_iter=100, eps=1e-8):
+    """ Solve the linear system using the conjugate gradient method. 
+    """  
+    assert mx.is_symmetric(S.A) \
+        and mx.is_positive_definite(S.A), "A must be symmetric definite positive"
+    A, b = S.A, S.b
+    # Since A is positive definite, it induces a scalar product
+    # <.,.>_A : R^n x R^n -> R, defined for each u,v vectors of R^n
+    # as u^T * A * v (alwais real due to the posive definition of A).
+    # A pair (u, v) such that <u,v>_A = 0 is called A-conjugate.  
+    Adot = lambda u, v: (u.T @ A) @ v
+    # The solution x of Ax=b corresponds to the minimum point
+    # of its the quadratic form. 
+    x_prev = np.random.rand(S.variables)
+    r_prev = b - (A @ x_prev)
+    p_prev = r_prev
+    for _ in range(max_iter): 
+        adot_prev = Adot(p_prev, p_prev) # used many times. 
+        if adot_prev == 0: 
+            warning('Avoiding zero division, stopping the method.')
+            break
+        alpha = (p_prev.T @ r_prev) / adot_prev
+        x = x_prev + (alpha * p_prev)
+        r = b - (A @ x)
+        beta = Adot(p_prev, r) / adot_prev
+        p = r - (beta * p_prev)
+        if change_ratio(x_prev, x) < eps:
+            break
+        x_prev = x
+        r_prev = r
+        p_prev = p
+    return x
 
 
 if __name__ == '__main__':
@@ -268,8 +283,8 @@ if __name__ == '__main__':
 
     # A = np.array([
     #     [30,  8,  9], 
-    #     [7,  30,  3],
-    #     [20, 15, 30] 
+    #     [8,  30,  8],
+    #     [9,   8, 30] 
     # ])
 
     # b = np.array([5, 4, 5])
@@ -278,6 +293,6 @@ if __name__ == '__main__':
     # S2 = LinearSystem(A, b)
     
     # xe = gem_solve(S2)
-    # xo = gradient_solve(S1, max_iter=10000)
+    # xo = conjugate_gradient_solve(S1)
     # print(xo)
     # print(xe)

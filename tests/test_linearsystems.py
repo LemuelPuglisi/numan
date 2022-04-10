@@ -116,3 +116,15 @@ def test_gradient_solve():
     xo = ls.gradient_solve(S1, max_iter=1000)
     xe = ls.gem_solve(S2)
     assert np.allclose(xo, xe, atol=1e-05)
+
+
+def test_conjugate_gradient_solve():
+    # the convergence of the method is ensured by diagonally
+    # dominant linear systems.
+    A = mx.generate_random_positive_definite_matrix(3)
+    b = np.random.rand(3)
+    S1 = ls.LinearSystem(A, b) # we build two because gem will modify the system
+    S2 = ls.LinearSystem(A, b)
+    xo = ls.conjugate_gradient_solve(S1, max_iter=1000)
+    xe = ls.gem_solve(S2)
+    assert np.allclose(xo, xe, atol=1e-05)
