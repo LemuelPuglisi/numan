@@ -9,7 +9,7 @@ class Point:
     def __init__(self, node, value, grad=None):
         self.node   = node
         self.value  = value
-        self.grad   = None
+        self.grad   = grad
 
     def set_grad(self, grad):
         self.grad = grad
@@ -77,23 +77,39 @@ def newton_polynomial(points: List[Point]):
     return poly.NddPolynomial(bterms, nodes) 
 
 
-def osculatory_interpolation(): 
-    """ Recall the theorem on osculatory interpolation where if 
+def osculatory_interpolation(points): 
+    """ Return a polynomial that (almost) interpolates the points,
+        using the osculatory interpolation (Hermitian Interpolation).
+        Recall the theorem on osculatory interpolation where if 
         there are n+1 data points and their first derivative, then
         there is only one 2n+1 grade polynomial p(x) such that
         p(xi) = f(xi) and p'(xi) = f'(xi). 
     """
-    pass
+    for p in points:
+        assert p.grad is not None, "Osculatory interpolation requires first derivative"
+
+    n = len(points)         # n + 1
+    m = 2*n                 # 2n + 2 
+    matrix_rows = []
+    b = []
+    for p in points:
+        
+        # normal equality 
+        row_grad_0 = [ p.node ** i for i in range(m) ]
+        matrix_rows.append(row_grad_0)
+        b.append(p.value)
+
+        # derivative equality 
+        row_grad_1 = [ (i+1) * (p.node ** i) for i in range(m-1) ]
+        row_grad_1.insert(0, 0) # first coefficient is zero. 
+        matrix_rows.append(row_grad_1)
+        b.append(p.grad)
+
+    A, b = np.array(matrix_rows), np.array(b)
+    print(A.shape)
+    Ls = ls.LinearSystem(A, b)
+    return poly.from_coefficients(ls.gem_solve(Ls))
 
 
 if __name__ == '__main__':
     pass
-
-    # nodes = [-2, -1, 0, 1, 2]
-    # funcs = [15, -2, -5, -6, 7]
-    # points = [ Point(n, v) for n, v in zip(nodes, funcs) ]
-    # p = newton_polynomial(points)
-    # print(p.evaluate(0))
-    # print(p.evaluate(1))
-    # print(p.evaluate(2))
-    # print(p.evaluate(3))
