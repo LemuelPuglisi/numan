@@ -6,9 +6,14 @@ from numan import linearsystems as ls
 from numan import polynomials as poly
 
 class Point:
-    def __init__(self, node, value):
-        self.node = node
-        self.value = value
+    def __init__(self, node, value, grad=None):
+        self.node   = node
+        self.value  = value
+        self.grad   = None
+
+    def set_grad(self, grad):
+        self.grad = grad
+
 
 
 def indeterminate_coefficients_method(points: List[Point]):
@@ -70,6 +75,15 @@ def newton_polynomial(points: List[Point]):
             dd_pyr[i].append(dd)
     bterms = [ l[0] for l in dd_pyr ]
     return poly.NddPolynomial(bterms, nodes) 
+
+
+def osculatory_interpolation(): 
+    """ Recall the theorem on osculatory interpolation where if 
+        there are n+1 data points and their first derivative, then
+        there is only one 2n+1 grade polynomial p(x) such that
+        p(xi) = f(xi) and p'(xi) = f'(xi). 
+    """
+    pass
 
 
 if __name__ == '__main__':
