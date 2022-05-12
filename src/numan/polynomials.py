@@ -1,9 +1,8 @@
-from tracemalloc import StatisticDiff
 import numpy as np
-import timeit
 
 from abc import ABC, abstractmethod
 from typing import List
+from numan.data import Point
 
 #--------------------------------------------------#
 
@@ -68,12 +67,81 @@ class NddPolynomial(Polynomial):
 #--------------------------------------------------#
 
 
+class Spline(ABC):
+    """ Abstract class for splines. 
+    """
+
+    def __init__(self, points: List[Point]):
+        self.points = points
+        self.calculate_coefficients()
+
+
+    def __call__(self, x: np.ScalarType):
+        """ Call the evaluate method directly.
+        """
+        return self.evaluate(x)
+
+
+    @abstractmethod
+    def calculate_coefficients(self):
+        """ Calculate the spline polynomial coefficients.
+        """
+        pass
+
+
+    @abstractmethod
+    def evaluate(self, x: np.ScalarType):
+        """ Evaluate the scalar x using the spline.
+        """
+        pass
+
+
+#--------------------------------------------------#
+
+
+class LinearSpline(Spline):
+
+    def calculate_coefficients(self):
+        """ Instead of calculating the coefficients, we 
+            can evaluate the function directly using the points. 
+        """
+        nodes = [ point.node for point in self.points ]
+        self.argmin = min(nodes)
+        self.argmax = max(nodes)
+        
+
+    def evaluate(self, x: np.ScalarType):
+        assert x >= self.argmin and x <= self.argmax, "Point outside spline range."
+        
+        value = 0
+        for i, point in enumerate(self.points):
+            xc = point.node
+            yc = point.value
+
+            if i > 0:
+                xp = self.points[i-1].node
+                if x >= xp and x <= xc:
+                    value += ((x - xp) / (xc - xp)) * yc
+
+            if i < (len(self.points) - 1):
+                xn = self.points[i+1].node
+                if x >= xc and x <= xn:
+                    value += ((xn - x) / (xn - xc)) * yc
+
+        return value
+
+#--------------------------------------------------#
+
+
 def from_coefficients(coefficients: np.array):
     return StandardPolynomial(coefficients)
 
 
 
 if __name__ == '__main__':
-    pass
-    # p = NddPolynomial([-1, 3, 1], [0, 1, 2])
-    # print(p(3))
+
+    points = [ Point(1, 5), Point(2, 3), Point(4, 6), Point(3, 5) ]
+
+    spline = LinearSpline(points)
+
+    print(spline(3.2))

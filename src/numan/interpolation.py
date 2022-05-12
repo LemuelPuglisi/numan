@@ -4,16 +4,7 @@ from typing import List
 from numan import matrices as mx
 from numan import linearsystems as ls
 from numan import polynomials as poly
-
-class Point:
-    def __init__(self, node, value, grad=None):
-        self.node   = node
-        self.value  = value
-        self.grad   = grad
-
-    def set_grad(self, grad):
-        self.grad = grad
-
+from numan.data import Point
 
 
 def indeterminate_coefficients_method(points: List[Point]):
