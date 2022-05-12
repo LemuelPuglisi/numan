@@ -111,5 +111,16 @@ def osculatory_interpolation(points):
     return poly.from_coefficients(ls.gem_solve(Ls))
 
 
+def chebichev_zeros(n, min=-1, max=1):
+    """ returns the zeros of the n-th chebychev polynomial
+        scaled to the [min, max] range. 
+    """
+    ith_zero = lambda i: np.cos(((i + .5) / n) * np.pi)
+    zeros = [ ith_zero(i) for i in range(n-1, -1, -1) ] 
+    scale = lambda x: (max-min) * ((x+1)/2) + min
+    scaled_zeros = [ scale(x) for x in zeros ]
+    return np.array(scaled_zeros)
+
+
 if __name__ == '__main__':
     pass

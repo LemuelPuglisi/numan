@@ -38,8 +38,7 @@ if __name__ == '__main__':
         legend_labels.append(f'nodes - degree {nn-1}')
 
     """ Interpolation through Chebyshev node distribution. """
-    cnodes = np.polynomial.chebyshev.chebpts1(14)
-    cnodes = np.array([ c * 5 for c in cnodes ])
+    cnodes = itp.chebichev_zeros(14, -5, 5)    
     funcs = f(cnodes)
     points = [ itp.Point(n, f) for  n, f in zip(cnodes, funcs)]
     cp = itp.newton_polynomial(points)

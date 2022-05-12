@@ -52,3 +52,10 @@ def test_osculatory_interpolation():
     px = itp.osculatory_interpolation(epts)
     evaluate = lambda x: px(x)
     assert interpolates_relaxed(evaluate, epts)
+
+
+def test_chebichev_zeros():
+    zeros = itp.chebichev_zeros(3)
+    T3 = lambda x: 4 * (x**3) - (3*x)
+    for zero in zeros:
+        assert np.round(T3(zero), 10) == 0.0
