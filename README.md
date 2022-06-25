@@ -1,5 +1,5 @@
 # numan
-Numerical analysis python library 🔢
+Numerical analysis python library for educational purpose only!
 
 ![Tests](https://github.com/LemuelPuglisi/numan/actions/workflows/tests.yml/badge.svg)
 
